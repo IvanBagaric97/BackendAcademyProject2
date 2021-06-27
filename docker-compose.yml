@@ -1,0 +1,41 @@
+###############################################################################
+#                          Generated on phpdocker.io                          #
+###############################################################################
+version: "3.1"
+services:
+
+    redis:
+      image: redis:alpine
+      container_name: dz-8-redis
+
+    postgres:
+      image: postgres:11.1-alpine
+      container_name: dz-8-postgres
+      working_dir: /application
+      volumes:
+        - .:/application
+      environment:
+        - POSTGRES_USER=admin
+        - POSTGRES_PASSWORD=12345
+        - POSTGRES_DB=Scores
+      ports:
+        - "8769:5432"
+
+    webserver:
+      image: nginx:alpine
+      container_name: dz-8-webserver
+      working_dir: /
+      volumes:
+          - ./dz_8/:/var/www/dz_8
+          - ./phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      ports:
+       - "8765:80"
+
+    php-fpm:
+      build: phpdocker/php-fpm
+      container_name: dz-8-php-fpm
+      working_dir: /
+      volumes:
+        - ./dz_8/:/var/www/dz_8
+        - ./phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/7.4/fpm/conf.d/99-overrides.ini
+
